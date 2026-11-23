@@ -1,0 +1,22 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    cap_add: [NET_ADMIN]
+    environment:
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WG_PRIVATE_KEY}
+    ports: ["8080:8080","8081:8081"]
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    network_mode: service:gluetun
+    environment: {PUID: 1000, PGID: 1000, TZ: Europe/Copenhagen}
+    volumes: ["./config/qbit:/config","/data:/data"]
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd
+    network_mode: service:gluetun
+    volumes: ["./config/sab:/config","/data:/data"]
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    ports: ["8096:8096"]
+    volumes: ["./config/jellyfin:/config","/data/media:/data/media"]
